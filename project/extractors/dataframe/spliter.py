@@ -45,3 +45,19 @@ class AutoHeader(TableExtactor):
         table.columns = table.iloc[header_col]
         table = table.iloc[header_col + 1 :]
         return [table]
+
+
+class Footer(TableExtactor):
+    def __init__(self, footer_words: typing.List[str]):
+        self._footer_words = footer_words
+
+    def __call__(self, table: pd.DataFrame) -> typing.List[pd.DataFrame]:
+        row_strs = table.apply(
+            lambda row: sum(
+                any(w in str(cell) for w in self._footer_words) for cell in row
+            ),
+            axis=1,
+        )
+        footer_col = row_strs.to_numpy().argmax()
+        table = table.iloc[:footer_col]
+        return [table]
