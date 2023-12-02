@@ -10,18 +10,16 @@ out = Processor(
         spliter.RowSpaceSpliter(2),
         spliter.PaddingRemover(),
         spliter.AutoHeader(),
+        spliter.ColumnClean(),
         spliter.Footer(["TOTAL"]),
-        spliter.IndexSet(["Name", "City"]),
+        spliter.IndexSet(["NAME", "CITY"]),
         spliter.HeaderDataExtractor(
-            "season",
+            "SEASON",
             {
-                "2021/22": 2021,
-                "2022/23": 2022,
-                "2023/24": 2023,
-                "2020-21": 2020,
-                "2021-22": 2021,
-                "2022-23": 2022,
-                "2023-24": 2023,
+                "2020 21": 2020,
+                "2021 22": 2021,
+                "2022 23": 2022,
+                "2023 24": 2023,
             },
         ),
         spliter.ColumnClean(),
@@ -30,5 +28,5 @@ out = Processor(
 
 for i, o in enumerate(out):
     o.to_csv(f"{i}.csv")
-total_out = Merger(["Name", "City"], ["season"])(out)
+total_out = Merger(["NAME", "CITY"], ["SEASON"])(out)
 total_out.to_csv("total.csv")

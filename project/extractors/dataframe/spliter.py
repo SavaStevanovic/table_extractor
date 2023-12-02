@@ -111,7 +111,7 @@ class HeaderDataExtractor(TableExtactor):
 class ColumnClean(TableExtactor):
     def __call__(self, table: pd.DataFrame) -> typing.List[pd.DataFrame]:
         table.columns = [
-            re.sub(r"[^a-zA-Z\s]", "", col).upper().strip() for col in table.columns
+            re.sub(r"[^a-zA-Z0-9\s]", " ", col).upper() for col in table.columns
         ]
-        table.columns = [re.sub(r"\s+", " ", col) for col in table.columns]
+        table.columns = [re.sub(r"\s+", " ", col).strip() for col in table.columns]
         return [table]
