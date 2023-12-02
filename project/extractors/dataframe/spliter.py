@@ -1,3 +1,4 @@
+import re
 import typing
 import pandas as pd
 
@@ -102,6 +103,15 @@ class HeaderDataExtractor(TableExtactor):
             return pd.DataFrame(columns=common_cells)
         subtable = table[common_cells + cols]
         subtable.columns = [col.replace(source, "") for col in subtable.columns]
-        subtable[self._column_name] = target
+        subtable = subtable.assign(**{self._column_name: target})
 
         return subtable
+
+
+class ColumnClean(TableExtactor):
+    def __call__(self, table: pd.DataFrame) -> typing.List[pd.DataFrame]:
+        table.columns = [
+            re.sub(r"[^a-zA-Z\s]", "", col).upper().strip() for col in table.columns
+        ]
+        table.columns = [re.sub(r"\s+", " ", col) for col in table.columns]
+        return [table]

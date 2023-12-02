@@ -27,3 +27,26 @@ class Processor:
             tables = sum(tables, [])
 
         return tables
+
+
+class Merger:
+    def __init__(self, mandatory_cols: list, concat_cols: list) -> None:
+        self._mandatory_cols = mandatory_cols
+        self._concat_cols = concat_cols
+
+    def __call__(self, tables: typing.List[pd.DataFrame]) -> pd.DataFrame:
+        total_table = tables[0]
+        for table in tables[1:]:
+            join_cols = (
+                total_table.columns.intersection(table.columns)
+                .intersection(self._concat_cols)
+                .to_list()
+            )
+            if join_cols:
+                total_table = pd.concat([total_table, table])
+            else:
+                total_table = total_table.merge(
+                    table, validate="m:1", on=self._mandatory_cols + join_cols
+                )
+
+        return total_table
