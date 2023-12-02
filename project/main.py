@@ -11,6 +11,18 @@ out = Processor(
         spliter.PaddingRemover(),
         spliter.AutoHeader(),
         spliter.Footer(["TOTAL"]),
+        spliter.IndexSet(["Name", "City"]),
+        spliter.HeaderDataExtractor(
+            "season",
+            {
+                "2021/22": 2021,
+                "2022/23": 2022,
+                "2023/24": 2023,
+                "2021-22": 2021,
+                "2022-23": 2022,
+                "2023-24": 2023,
+            },
+        ),
     ]
 )(list(test.values()))
 for i, o in enumerate(out):

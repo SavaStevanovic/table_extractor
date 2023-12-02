@@ -61,3 +61,47 @@ class Footer(TableExtactor):
         footer_col = row_strs.to_numpy().argmax()
         table = table.iloc[:footer_col]
         return [table]
+
+
+class IndexSet(TableExtactor):
+    def __init__(self, index_cols: typing.List[str]):
+        self._index_cols = index_cols
+
+    def __call__(self, table: pd.DataFrame) -> typing.List[pd.DataFrame]:
+        table = table.set_index(self._index_cols)
+        return [table]
+
+
+class HeaderDataExtractor(TableExtactor):
+    def __init__(self, column_name: str, header_column_map: typing.Dict[str, str]):
+        self._column_name = column_name
+        self._header_column_map = header_column_map
+
+    def __call__(self, table: pd.DataFrame) -> typing.List[pd.DataFrame]:
+        subtables = [
+            self._get_subtable(table.copy(deep=True), source, target)
+            for source, target in self._header_column_map.items()
+        ]
+        subtables = [t for t in subtables if not t.empty]
+        if not subtables:
+            return [table]
+
+        table = pd.concat(subtables)
+        return [table]
+
+    def _get_subtable(
+        self, table: pd.DataFrame, source: list, target: list
+    ) -> pd.DataFrame:
+        common_cells = [
+            cell
+            for cell in table.columns
+            if not any(w in str(cell) for w in self._header_column_map)
+        ]
+        cols = [cell for cell in table.columns if source in cell]
+        if not cols:
+            return pd.DataFrame(columns=common_cells)
+        subtable = table[common_cells + cols]
+        subtable.columns = [col.replace(source, "") for col in subtable.columns]
+        subtable[self._column_name] = target
+
+        return subtable
