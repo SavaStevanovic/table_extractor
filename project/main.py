@@ -1,6 +1,7 @@
 import pandas as pd
 
 from extractors.dataframe import spliter
+from extractors.dataframe.preheader import DownRight
 from extractors.extractor import Merger, Processor
 
 test = pd.read_excel("data/Table#1.xlsx", sheet_name=None, header=None)
@@ -9,7 +10,7 @@ out = Processor(
     [
         spliter.RowSpaceSpliter(2),
         spliter.PaddingRemover(),
-        spliter.AutoHeader(),
+        spliter.AutoHeader(DownRight("\d{4}[-/]\d{2}")),
         spliter.ColumnClean(),
         spliter.Footer(["TOTAL"]),
         spliter.IndexSet(["NAME", "CITY"]),

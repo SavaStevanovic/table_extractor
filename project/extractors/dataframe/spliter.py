@@ -1,6 +1,7 @@
 import re
 import typing
 import pandas as pd
+from extractors.dataframe.preheader import PreheaderPropagator
 
 from extractors.extractor import TableExtactor
 
@@ -38,13 +39,19 @@ class PaddingRemover(TableExtactor):
 
 
 class AutoHeader(TableExtactor):
+    def __init__(self, preheader_propagator: typing.Optional[PreheaderPropagator]):
+        self._preheader_propagator = preheader_propagator
+
     def __call__(self, table: pd.DataFrame) -> typing.List[pd.DataFrame]:
         row_strs = table.apply(
             lambda row: sum(isinstance(cell, str) for cell in row), axis=1
         )
         header_col = row_strs.to_numpy().argmax()
+        prehader_data = table.iloc[: header_col + 1]
         table.columns = table.iloc[header_col]
         table = table.iloc[header_col + 1 :]
+        if self._preheader_propagator is not None:
+            self._preheader_propagator(prehader_data, table)
         return [table]
 
 
