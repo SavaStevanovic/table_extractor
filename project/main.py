@@ -1,8 +1,8 @@
 import pandas as pd
 
-from extractors.dataframe import spliter
-from extractors.dataframe.preheader import DownRight
-from extractors.extractor import Merger, Processor
+from frame_extractors.dataframe import spliter
+from frame_extractors.dataframe.preheader import DownRight
+from frame_extractors.extractor import Merger, Processor
 
 tables = ["data/Table#1.xlsx"]
 test = sum(

@@ -1,9 +1,9 @@
 import re
 import typing
 import pandas as pd
-from extractors.dataframe.preheader import PreheaderPropagator
+from frame_extractors.dataframe.preheader import PreheaderPropagator
 
-from extractors.extractor import TableExtactor
+from frame_extractors.extractor import TableExtactor
 
 
 class RowSpaceSpliter(TableExtactor):
@@ -115,10 +115,59 @@ class HeaderDataExtractor(TableExtactor):
         return subtable
 
 
+# class HeaderDataExtractor(TableExtactor):
+#     def __init__(self, column_name: str, header_column_map: str]):
+#         self._column_name = column_name
+#         self._header_column_map = header_column_map
+
+#     def __call__(self, table: pd.DataFrame) -> typing.List[pd.DataFrame]:
+#         subtables = [
+#             self._get_subtable(table.copy(deep=True), self._header_column_map)
+#         ]
+#         subtables = [t for t in subtables if not t.empty]
+#         if not subtables:
+#             return [table]
+
+#         table = pd.concat(subtables)
+#         return [table]
+
+#     def _get_subtable(
+#         self, table: pd.DataFrame, source: str
+#     ) -> pd.DataFrame:
+#         common_cells = [
+#             cell
+#             for cell in table.columns
+#             if not any(re.search(self._header_column_map, cell))
+#         ]
+#         cols = [cell for cell in table.columns if source in cell]
+#         if not cols:
+#             return pd.DataFrame(columns=common_cells)
+#         subtable = table[common_cells + cols]
+#         subtable.columns = [col.replace(source, "") for col in subtable.columns]
+#         subtable = subtable.assign(**{self._column_name: target})
+
+#         return subtable
+
+
 class ColumnClean(TableExtactor):
     def __call__(self, table: pd.DataFrame) -> typing.List[pd.DataFrame]:
         table.columns = [
-            re.sub(r"[^a-zA-Z0-9\s]", " ", col).upper() for col in table.columns
+            re.sub(r"[^a-zA-Z0-9\s%]", " ", col).upper() for col in table.columns
         ]
         table.columns = [re.sub(r"\s+", " ", col).strip() for col in table.columns]
+        return [table]
+
+
+class ColumnRename(TableExtactor):
+    def __init__(self, header_column_map: typing.Dict[str, str]):
+        self._header_column_map = header_column_map
+
+    def __call__(self, table: pd.DataFrame) -> typing.List[pd.DataFrame]:
+        return [table.rename(columns=self._header_column_map)]
+
+
+class DropNanIndex(TableExtactor):
+    def __call__(self, table: pd.DataFrame) -> typing.List[pd.DataFrame]:
+        index = table.index.names
+        table = table.reset_index().dropna(subset=index).set_index(index)
         return [table]
