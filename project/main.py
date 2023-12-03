@@ -4,13 +4,16 @@ from extractors.dataframe import spliter
 from extractors.dataframe.preheader import DownRight
 from extractors.extractor import Merger, Processor
 
-test = pd.read_excel("data/Table#1.xlsx", sheet_name=None, header=None)
+tables = ["data/Table#1.xlsx"]
+test = sum(
+    [list(pd.read_excel(t, sheet_name=None, header=None).values()) for t in tables], []
+)
 
 out = Processor(
     [
         spliter.RowSpaceSpliter(2),
         spliter.PaddingRemover(),
-        spliter.AutoHeader(DownRight("\d{4}[-/]\d{2}")),
+        spliter.AutoHeader(DownRight("\d{4}[-/]\d{2}", ["Zip", "Sq. Ft."])),
         spliter.ColumnClean(),
         spliter.Footer(["TOTAL"]),
         spliter.IndexSet(["NAME", "CITY"]),
@@ -25,7 +28,7 @@ out = Processor(
         ),
         spliter.ColumnClean(),
     ]
-)(list(test.values()))
+)(test)
 
 for i, o in enumerate(out):
     o.to_csv(f"{i}.csv")
