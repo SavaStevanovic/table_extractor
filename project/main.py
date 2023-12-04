@@ -1,6 +1,6 @@
 import pandas as pd
 
-from frame_extractors.dataframe import spliter
+from frame_extractors.dataframe import extractor
 from frame_extractors.dataframe.preheader import DownRight
 from frame_extractors.extractor import Merger, Processor
 
@@ -11,13 +11,13 @@ test = sum(
 
 out = Processor(
     [
-        spliter.RowSpaceSpliter(2),
-        spliter.PaddingRemover(),
-        spliter.AutoHeader(DownRight("\d{4}[-/]\d{2}", ["Zip", "Sq. Ft."])),
-        spliter.ColumnClean(),
-        spliter.Footer(["TOTAL"]),
-        spliter.IndexSet(["NAME", "CITY"]),
-        spliter.HeaderDataExtractor(
+        extractor.RowSpaceSpliter(2),
+        extractor.PaddingRemover(),
+        extractor.AutoHeader(DownRight("\d{4}[-/]\d{2}", ["Zip", "Sq. Ft."])),
+        extractor.ColumnClean(),
+        extractor.Footer(["TOTAL"]),
+        extractor.IndexSet(["NAME", "CITY"]),
+        extractor.HeaderDataExtractor(
             "SEASON",
             {
                 "2020 21": 2020,
@@ -26,7 +26,7 @@ out = Processor(
                 "2023 24": 2023,
             },
         ),
-        spliter.ColumnClean(),
+        extractor.ColumnClean(),
     ]
 )(test)
 
@@ -37,14 +37,14 @@ test = sum(
 
 out += Processor(
     [
-        spliter.PaddingRemover(),
-        spliter.AutoHeader(DownRight("\d{4}[-/]\d{2,4}", [])),
-        spliter.ColumnClean(),
-        spliter.ColumnRename(
+        extractor.PaddingRemover(),
+        extractor.AutoHeader(DownRight("\d{4}[-/]\d{2,4}", [])),
+        extractor.ColumnClean(),
+        extractor.ColumnRename(
             {"WAREHOUSE": "NAME", "LOCATION NAME IDENTIFIER": "NAME", "ADDRESS": "CITY"}
         ),
-        spliter.IndexSet(["NAME", "CITY"]),
-        spliter.HeaderDataExtractor(
+        extractor.IndexSet(["NAME", "CITY"]),
+        extractor.HeaderDataExtractor(
             "SEASON",
             {
                 "2020 21": 2020,
@@ -57,8 +57,8 @@ out += Processor(
                 "2023 2024": 2023,
             },
         ),
-        spliter.DropNanIndex(),
-        spliter.ColumnClean(),
+        extractor.DropNanIndex(),
+        extractor.ColumnClean(),
     ]
 )(test)
 

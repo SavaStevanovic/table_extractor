@@ -43,6 +43,6 @@ class DownRight(PreheaderPropagator):
         return match.group(0) if match else None
 
     @staticmethod
-    def last_non_none(series: pd.Series):
+    def last_non_none(series: pd.Series) -> typing.Any:
         non_none_values = series.dropna()
         return non_none_values.iloc[-1] if not non_none_values.empty else None
